@@ -85,7 +85,19 @@ custom_minimum_size = Vector2(100, 100)
 layout_mode = 2
 text = "Skito"
 
+[node name="TrainSpiderBtn" type="Button" parent="Control/SidePanel/VBox/ActionGrid"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+text = "Spider"
+
+[node name="TrainMantisBtn" type="Button" parent="Control/SidePanel/VBox/ActionGrid"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+text = "Mantis"
+
 [connection signal="pressed" from="Control/SidePanel/VBox/Tabs/TabBuild" to="." method="_on_tab_build_pressed"]
 [connection signal="pressed" from="Control/SidePanel/VBox/Tabs/TabAction" to="." method="_on_tab_action_pressed"]
 [connection signal="pressed" from="Control/SidePanel/VBox/BuildGrid/BuildNestBtn" to="." method="_on_build_nest_pressed"]
 [connection signal="pressed" from="Control/SidePanel/VBox/ActionGrid/TrainSkitoBtn" to="." method="_on_train_skito_pressed"]
+[connection signal="pressed" from="Control/SidePanel/VBox/ActionGrid/TrainSpiderBtn" to="." method="_on_train_spider_pressed"]
+[connection signal="pressed" from="Control/SidePanel/VBox/ActionGrid/TrainMantisBtn" to="." method="_on_train_mantis_pressed"]

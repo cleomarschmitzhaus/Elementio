@@ -40,12 +40,28 @@ func _on_tab_action_pressed() -> void:
 	action_grid.visible = true
 
 func _on_train_skito_pressed() -> void:
-	if selected_building and selected_building.has_method("spawn_skito"):
+	if selected_building and selected_building.has_method("spawn_unit"):
 		if GameManager.can_afford(GameManager.skito_cost):
 			GameManager.spend(GameManager.skito_cost)
-			selected_building.spawn_skito()
+			selected_building.spawn_unit("skito")
 		else:
 			print("Elemeth insuficiente para Skito!")
+
+func _on_train_spider_pressed() -> void:
+	if selected_building and selected_building.has_method("spawn_unit"):
+		if GameManager.can_afford(GameManager.spider_cost):
+			GameManager.spend(GameManager.spider_cost)
+			selected_building.spawn_unit("spider")
+		else:
+			print("Elemeth insuficiente para Spider!")
+
+func _on_train_mantis_pressed() -> void:
+	if selected_building and selected_building.has_method("spawn_unit"):
+		if GameManager.can_afford(GameManager.mantis_cost):
+			GameManager.spend(GameManager.mantis_cost)
+			selected_building.spawn_unit("mantis")
+		else:
+			print("Elemeth insuficiente para Mantis!")
 
 func _on_build_nest_pressed() -> void:
 	if is_building_mode: return

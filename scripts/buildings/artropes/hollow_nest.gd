@@ -23,9 +23,8 @@ func deselect() -> void:
 	if ui:
 		ui.hide_building_menu()
 
-func spawn_skito() -> void:
-	var skito_scene = load("res://scenes/units/artropes/skito.tscn")
-	var skito = skito_scene.instantiate()
-	skito.global_position = spawn_point.global_position
-	# Adiciona no parent (Main scene) para não ficar preso à construção
-	get_parent().add_child(skito)
+func spawn_unit(unit_name: String) -> void:
+	var unit_scene = load("res://scenes/units/artropes/" + unit_name + ".tscn")
+	var unit = unit_scene.instantiate()
+	unit.global_position = spawn_point.global_position
+	get_parent().add_child(unit)

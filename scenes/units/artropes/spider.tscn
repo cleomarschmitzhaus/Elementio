@@ -1,14 +1,15 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/units/artropes/unit.gd" id="1_unit"]
-[ext_resource type="Texture2D" uid="uid://dskito_tex" path="res://assets/sprites/skito.jpg" id="2_tex"]
+[ext_resource type="Texture2D" uid="uid://dspider_tex" path="res://assets/sprites/spider.jpg" id="2_tex"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_sk1"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sp1"]
 size = Vector2(32, 32)
 
-[node name="Skito" type="CharacterBody2D" groups=["units", "artropes"]]
+[node name="Spider" type="CharacterBody2D" groups=["units", "artropes"]]
 input_pickable = true
 script = ExtResource("1_unit")
+speed = 120.0
 
 [node name="SelectionRing" type="ColorRect" parent="."]
 offset_left = -18.0
@@ -23,4 +24,4 @@ scale = Vector2(0.03, 0.03)
 texture = ExtResource("2_tex")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_sk1")
+shape = SubResource("RectangleShape2D_sp1")
