@@ -1,6 +1,7 @@
 [gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui.gd" id="1_ui"]
+[ext_resource type="Script" path="res://scripts/minimap.gd" id="2_minimap"]
 
 [node name="UI" type="CanvasLayer"]
 script = ExtResource("1_ui")
@@ -38,17 +39,13 @@ theme_override_constants/separation = 15
 custom_minimum_size = Vector2(230, 200)
 layout_mode = 2
 color = Color(0.1, 0.1, 0.1, 1)
+script = ExtResource("2_minimap")
 
-[node name="MapLabel" type="Label" parent="Control/SidePanel/VBox/MinimapRect"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "MINIMAPA"
+[node name="ElemethLabel" type="Label" parent="Control/SidePanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.8, 1, 1)
+text = "Elemeth: 500"
 horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="StatsLabel" type="Label" parent="Control/SidePanel/VBox"]
 layout_mode = 2
