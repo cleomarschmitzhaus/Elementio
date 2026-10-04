@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/units/artropes/skito.gd" id="1_skito"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sk1"]
+size = Vector2(32, 32)
+
+[node name="Skito" type="CharacterBody2D" groups=["units", "artropes"]]
+input_pickable = true
+script = ExtResource("1_skito")
+
+[node name="SelectionRing" type="ColorRect" parent="."]
+offset_left = -18.0
+offset_top = -18.0
+offset_right = 18.0
+offset_bottom = 18.0
+color = Color(0, 1, 0, 0.4)
+metadata/_edit_use_anchors_ = true
+
+[node name="Body" type="ColorRect" parent="."]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(0.8, 0.4, 0.2, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_sk1")

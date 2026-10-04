@@ -1,0 +1,26 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/rts_camera.gd" id="1_abcde"]
+[ext_resource type="PackedScene" path="res://scenes/units/artropes/skito.tscn" id="2_skito"]
+[ext_resource type="PackedScene" path="res://scenes/ui.tscn" id="3_ui"]
+[ext_resource type="Script" path="res://scripts/selection_manager.gd" id="4_sel"]
+
+[node name="Main" type="Node2D"]
+
+[node name="SelectionManager" type="Node2D" parent="."]
+script = ExtResource("4_sel")
+
+[node name="Ground" type="ColorRect" parent="."]
+offset_left = -1000.0
+offset_top = -1000.0
+offset_right = 1000.0
+offset_bottom = 1000.0
+color = Color(0.180392, 0.309804, 0.180392, 1)
+
+[node name="UI" parent="." instance=ExtResource("3_ui")]
+
+[node name="Skito" parent="." instance=ExtResource("2_skito")]
+position = Vector2(100, 100)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+script = ExtResource("1_abcde")
