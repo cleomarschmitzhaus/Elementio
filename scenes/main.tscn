@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/rts_camera.gd" id="1_abcde"]
 [ext_resource type="PackedScene" path="res://scenes/units/artropes/skito.tscn" id="2_skito"]
@@ -8,7 +8,6 @@
 [ext_resource type="Shader" path="res://shaders/populous_planet.gdshader" id="6_shader"]
 [ext_resource type="PackedScene" path="res://scenes/buildings/artropes/hollow_nest.tscn" id="7_nest"]
 [ext_resource type="PackedScene" path="res://scenes/elementio_fountain.tscn" id="8_fount"]
-[ext_resource type="PackedScene" path="res://scenes/units/artropes/spider.tscn" id="10_spider"]
 [ext_resource type="Script" path="res://scripts/ai/enemy_ai.gd" id="11_ai"]
 [ext_resource type="Script" path="res://scripts/match_manager.gd" id="12_match"]
 
@@ -73,10 +72,6 @@ team = 1
 
 [node name="EnemySkito2" parent="." instance=ExtResource("2_skito")]
 position = Vector2(1470, -750)
-team = 1
-
-[node name="EnemySpider1" parent="." instance=ExtResource("10_spider")]
-position = Vector2(1400, -700)
 team = 1
 
 [node name="EnemyFountain1" parent="." instance=ExtResource("8_fount")]

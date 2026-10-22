@@ -17,6 +17,8 @@ func _ready() -> void:
 	await _test_fountain_worker_queue()
 	await _test_nest_rally()
 	await _test_draw_layers()
+	await _test_unit_stats_and_projectile()
+	await _test_settings_menu()
 	await _test_camera_wrap()
 	await _test_toroidal_planet()
 	await _test_selection_manager()
@@ -411,6 +413,186 @@ func _test_draw_layers() -> void:
 	spider.free()
 
 # ---------------------------------------------------------------------------
+# 3e. Status de combate (vida/defesa/ataque) e projetil de veneno
+# ---------------------------------------------------------------------------
+func _test_unit_stats_and_projectile() -> void:
+	print("[3e] Status de combate / projetil de veneno")
+	var root := get_tree().current_scene
+
+	# Spider: vida, defesa e mitigacao de dano
+	var spider = load("res://scenes/units/artropes/spider.tscn").instantiate()
+	spider.team = Faction.PLAYER
+	spider.position = Vector2(1200, 1200)
+	root.add_child(spider)
+	spider.set_physics_process(false)
+	await _frames(2)
+	_check(spider.max_health == 120, "Spider tem 120 de vida")
+	_check(is_equal_approx(spider.defense, 0.15), "Spider tem 15% de defesa")
+	_check(spider.attack_damage == 12, "Spider tem 12 de ataque")
+	var spider_info: String = spider.get_unit_info()
+	_check(spider_info.contains("Defesa: 15%") and spider_info.contains("Ataque: 12"),
+		"HUD da unidade mostra vida/defesa/ataque")
+	var spider_sprite: Sprite2D = spider.get_node("Sprite2D")
+	_check(is_equal_approx(spider_sprite.region_rect.position.y, 0.0),
+		"Spider usa somente a linha de cima da folha (nao vira escorpiao)")
+	var hp0: int = spider.current_health
+	spider.take_damage(20)
+	_check(spider.current_health == hp0 - 17, "dano 20 com 15% de defesa = 17")
+	var health_bar: Node2D = spider.get_node_or_null("HealthBar")
+	_check(health_bar != null and health_bar.visible,
+		"barra de vida da unidade aparece apos sofrer dano")
+	spider.take_damage(1000)
+	_check(spider.current_health == 0 and spider.is_queued_for_deletion(),
+		"unidade morre ao chegar a 0 de vida")
+	await _frames(2)
+
+	# Scorpion: unidade a distancia, recorte da linha de baixo da folha
+	var scorpion = load("res://scenes/units/artropes/scorpion.tscn").instantiate()
+	scorpion.team = Faction.PLAYER
+	scorpion.position = Vector2(1600, 1200)
+	root.add_child(scorpion)
+	scorpion.set_physics_process(false)
+	await _frames(2)
+	_check(scorpion.is_ranged, "Scorpion e uma unidade de ataque a distancia")
+	_check(scorpion.attack_range >= 150.0, "Scorpion ataca a distancia (alcance >= 150)")
+	_check(scorpion.projectile_scene != null, "Scorpion tem cena de projetil")
+	var scorpion_info: String = scorpion.get_unit_info()
+	_check(scorpion_info.contains("Escorpião"), "HUD identifica o Escorpião")
+	_check(scorpion_info.contains("Defesa: 10%"), "Escorpião mostra 10% de defesa")
+	_check(scorpion_info.contains("veneno 3/s"), "HUD mostra o veneno do Escorpião")
+	var scorpion_sprite: Sprite2D = scorpion.get_node("Sprite2D")
+	_check(is_equal_approx(scorpion_sprite.region_rect.position.y, 512.0),
+		"Scorpion usa a linha de baixo da folha (jato de veneno)")
+
+	# Alvo inimigo para testar o projetil e o veneno ao longo do tempo
+	var target = load("res://scenes/units/artropes/skito.tscn").instantiate()
+	target.team = Faction.ENEMY
+	target.position = Vector2(1700, 1200)
+	root.add_child(target)
+	target.set_physics_process(false)
+	await _frames(1)
+	var target_hp0: int = target.current_health
+	scorpion.attack(target)
+	scorpion.attack_timer = scorpion.attack_cooldown
+	scorpion._process_attacking(0.01)
+	var projectiles := get_tree().get_nodes_in_group("projectiles")
+	_check(projectiles.size() > 0, "Scorpion dispara projetil de veneno")
+	target.set_physics_process(true)
+	await _pframes(20)
+	_check(target.current_health < target_hp0, "projetil causa dano no alvo")
+	_check(target.poison_time_left > 0.0, "projetil aplica veneno no alvo")
+	var hp_after_hit: int = target.current_health
+	await _pframes(75)
+	_check(target.current_health < hp_after_hit, "veneno causa dano continuo")
+
+	# HUD: o painel de selecao mostra os atributos da unidade
+	var ui = load("res://scenes/ui.tscn").instantiate()
+	root.add_child(ui)
+	await _frames(2)
+	_check(ui.get_node_or_null("Control/BottomBar/Panel/Margin/HBox/SelectionPanel/SelectionStats") != null,
+		"HUD tem campo de atributos da unidade")
+	_check(ui.get_node_or_null("Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid/TrainScorpionBtn") != null,
+		"HUD tem botao de treinar Escorpião")
+	_check(ui.idle_scorpion_btn != null, "HUD tem indicador de Escorpião ocioso")
+	ui.update_selected_units_display([scorpion])
+	_check(ui.selection_stats.text.contains("Escorpião") and ui.selection_stats.text.contains("Defesa: 10%"),
+		"painel de selecao exibe os atributos do Escorpião")
+	# O botao do HUD enfileira a producao no ninho do jogador e cobra o custo.
+	var player_nest = load("res://scenes/buildings/artropes/hollow_nest.tscn").instantiate()
+	player_nest.team = Faction.PLAYER
+	player_nest.position = Vector2(1200, 1000)
+	root.add_child(player_nest)
+	await _frames(1)
+	if GameManager.elemeth < GameManager.scorpion_cost:
+		GameManager.add_elemeth(GameManager.scorpion_cost - GameManager.elemeth)
+	var gold_before: int = GameManager.elemeth
+	ui.show_building_menu(player_nest)
+	ui._on_train_scorpion_pressed()
+	_check(player_nest.is_producing and player_nest.current_production == "scorpion",
+		"botao do HUD enfileira a producao do Escorpião")
+	_check(GameManager.elemeth == gold_before - GameManager.scorpion_cost,
+		"treinar Escorpião cobra o custo correto")
+	player_nest.queue_free()
+	ui.queue_free()
+	await _frames(2)
+
+	# Custo e IA conhecem o novo tipo
+	_check(GameManager.scorpion_cost > 0, "Escorpião tem custo de producao")
+	var ai = load("res://scripts/ai/enemy_ai.gd").new()
+	_check(ai._unit_cost("scorpion") == GameManager.scorpion_cost,
+		"IA usa o custo correto do Escorpião")
+	ai.free()
+
+	scorpion.queue_free()
+	target.queue_free()
+	await _frames(2)
+
+# ---------------------------------------------------------------------------
+# 3f. Menu de opcoes / pausa
+# ---------------------------------------------------------------------------
+func _test_settings_menu() -> void:
+	print("[3f] Menu de opcoes / pausa")
+	var settings_manager = get_tree().root.get_node_or_null("SettingsManager")
+	_check(settings_manager != null, "autoload SettingsManager presente")
+	if settings_manager == null:
+		return
+
+	var old_speed: float = SettingsManager.game_speed
+	var old_scroll: float = SettingsManager.scroll_speed
+	var old_time_scale: float = Engine.time_scale
+
+	SettingsManager.set_game_speed(1.5)
+	SettingsManager.set_scroll_speed(1200.0)
+	_check(is_equal_approx(Engine.time_scale, 1.5), "opcao de velocidade do jogo aplica time_scale")
+	_check(is_equal_approx(SettingsManager.scroll_speed, 1200.0),
+		"opcao de velocidade de rolagem e aplicada")
+
+	var root := get_tree().current_scene
+	var ui = load("res://scenes/ui.tscn").instantiate()
+	root.add_child(ui)
+	await _frames(2)
+	_check(ui.get_node_or_null("Control/TopBar/Panel/Margin/HBox/OptionsBtn") != null,
+		"HUD tem botao de opcoes")
+	_check(ui.settings_menu != null, "menu de opcoes e instanciado no HUD")
+	if ui.settings_menu != null:
+		var menu = ui.settings_menu
+		_check(menu.get_node_or_null("Center/Panel/Margin/VBox/Tabs") != null,
+			"menu de opcoes tem abas")
+		_check(menu.tabs.get_tab_count() == 3, "menu tem abas Jogo/Audio/Video")
+		_check(menu._sliders.size() == 5, "menu tem os 5 sliders de configuracao")
+		_check(menu._checks.size() == 3, "menu tem as 3 opcoes de alternancia")
+		var version := str(ProjectSettings.get_setting("application/config/version", ""))
+		var parts := version.split(".")
+		_check(parts.size() == 3 and parts[0] == "0" and parts[1].length() == 2
+			and parts[2].length() == 3 and parts[1].is_valid_int() and parts[2].is_valid_int(),
+			"versionamento segue o formato 0.xx.xxx")
+		_check(menu.version_label.text.contains(version), "menu exibe a versao do jogo")
+
+		# Esc abre, pausa e fecha o menu.
+		var esc := InputEventKey.new()
+		esc.pressed = true
+		esc.keycode = KEY_ESCAPE
+		ui._input(esc)
+		_check(menu.visible and get_tree().paused, "Esc abre opcoes e pausa a partida")
+		var speed_slider: HSlider = menu._sliders["game_speed"]
+		speed_slider.value = 1.3
+		_check(is_equal_approx(SettingsManager.game_speed, 1.3),
+			"slider de velocidade altera a configuracao em tempo real")
+		# Volta aos valores anteriores antes de fechar (close salva no disco).
+		SettingsManager.set_game_speed(old_speed)
+		SettingsManager.set_scroll_speed(old_scroll)
+		ui._input(esc)
+		_check(not menu.visible and not get_tree().paused, "Esc fecha opcoes e retoma a partida")
+
+	ui.queue_free()
+	await _frames(2)
+
+	# Restaura os valores anteriores para nao alterar a preferencia do jogador.
+	SettingsManager.set_game_speed(old_speed)
+	SettingsManager.set_scroll_speed(old_scroll)
+	Engine.time_scale = old_time_scale
+
+# ---------------------------------------------------------------------------
 # 4. Camera: wrap toroidal
 # ---------------------------------------------------------------------------
 func _test_camera_wrap() -> void:
@@ -725,7 +907,8 @@ func _test_globe_screen_to_world() -> void:
 func _test_scenes_load() -> void:
 	print("[8] Carga de cenas")
 	for path in ["res://scenes/world_flat.tscn", "res://scenes/elementio_fountain.tscn",
-			"res://scenes/buildings/artropes/hollow_nest.tscn", "res://scenes/units/artropes/skito.tscn"]:
+			"res://scenes/buildings/artropes/hollow_nest.tscn", "res://scenes/units/artropes/skito.tscn",
+			"res://scenes/units/artropes/scorpion.tscn", "res://scenes/projectiles/poison_projectile.tscn"]:
 		var ps: PackedScene = load(path)
 		_check(ps != null, "cena carrega: %s" % path)
 		if ps:
@@ -740,6 +923,7 @@ func _test_scenes_load() -> void:
 		"res://scenes/units/artropes/skito.tscn": 40.755,
 		"res://scenes/units/artropes/mantis.tscn": 35.84,
 		"res://scenes/units/artropes/spider.tscn": 35.84,
+		"res://scenes/units/artropes/scorpion.tscn": 35.84,
 		"res://scenes/buildings/artropes/hollow_nest.tscn": 75.24,
 		"res://scenes/elementio_fountain.tscn": 59.76,
 	}
@@ -757,6 +941,7 @@ func _test_scenes_load() -> void:
 	# separador de 1 px (5 separadores = 6 divisoes) e a barra acima do sprite.
 	var bar_cases := [
 		["res://scenes/units/artropes/skito.tscn", "_setup_carry_bar", "CarryBar", 40.0, -18.0, 5],
+		["res://scenes/units/artropes/spider.tscn", "_setup_health_bar", "HealthBar", 38.0, -26.0, 0],
 		["res://scenes/buildings/artropes/hollow_nest.tscn", "_setup_health_bar", "HealthBar", 44.0, -46.0, 0],
 		["res://scenes/elementio_fountain.tscn", "_setup_res_bar", "ResBar", 44.0, -34.0, 5],
 	]

@@ -11,6 +11,7 @@ var initial_enemy_elemeth: int = 600
 var skito_cost: int = 50
 var spider_cost: int = 100
 var mantis_cost: int = 150
+var scorpion_cost: int = 120
 var hollow_nest_cost: int = 200
 
 # Resultado da partida

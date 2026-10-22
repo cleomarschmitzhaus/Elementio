@@ -1,0 +1,27 @@
+ELEMENTIO v0.01.000 (alpha)
+Build Windows x86_64 - 22/10/2026
+
+COMO EXECUTAR
+1. Extraia todo o conteudo deste RAR para uma pasta.
+2. Execute Elementio.exe.
+
+CONTROLES
+- Mouse esquerdo: selecionar unidade; arraste para selecionar um grupo.
+- Mouse direito: mover unidades ou atacar um alvo.
+- Bordas da tela: movem a camera; a roda do mouse aproxima/afasta.
+- WASD / setas: mover a camera.
+- F: alternar a formacao das unidades.
+- 1-9: selecionar grupo de controle (Ctrl + numero para definir).
+- Esc: abrir/fechar Opcoes e pausar a partida.
+- F11: alternar tela cheia.
+- Botao "Opcoes (Esc)" na barra superior: abrir o menu de opcoes.
+
+MENU DE OPCOES
+- Jogo: velocidade do jogo, velocidade de rolagem, rolagem nas bordas e barras de vida.
+- Audio: volumes geral, musica e efeitos.
+- Video: tela cheia.
+As configuracoes sao salvas automaticamente em user://elementio_settings.cfg.
+
+VERSIONAMENTO
+0.01.000 - primeira versao alfa versionada.
+Formato 0.xx.xxx: 0 = versao alfa; xx = mudancas importantes; xxx = mudancas menores.

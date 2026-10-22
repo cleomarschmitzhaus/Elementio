@@ -1,5 +1,5 @@
-Relatorio de testes — 2026-10-22T00:17:39
-Resultado: 190 PASS / 0 FAIL
+Relatorio de testes — 2026-10-22T14:16:51
+Resultado: 240 PASS / 0 FAIL
 
 PASS  planeta existe (grupo 'planet')
 PASS  get_elevation_at sempre em [0,1]
@@ -61,6 +61,47 @@ PASS  ninho e fonte na mesma camada de construcao
 PASS  skito acima das construcoes
 PASS  spider acima das construcoes
 PASS  construcoes acima do terreno (z=-10)
+PASS  Spider tem 120 de vida
+PASS  Spider tem 15% de defesa
+PASS  Spider tem 12 de ataque
+PASS  HUD da unidade mostra vida/defesa/ataque
+PASS  Spider usa somente a linha de cima da folha (nao vira escorpiao)
+PASS  dano 20 com 15% de defesa = 17
+PASS  barra de vida da unidade aparece apos sofrer dano
+PASS  unidade morre ao chegar a 0 de vida
+PASS  Scorpion e uma unidade de ataque a distancia
+PASS  Scorpion ataca a distancia (alcance >= 150)
+PASS  Scorpion tem cena de projetil
+PASS  HUD identifica o Escorpião
+PASS  Escorpião mostra 10% de defesa
+PASS  HUD mostra o veneno do Escorpião
+PASS  Scorpion usa a linha de baixo da folha (jato de veneno)
+PASS  Scorpion dispara projetil de veneno
+PASS  projetil causa dano no alvo
+PASS  projetil aplica veneno no alvo
+PASS  veneno causa dano continuo
+PASS  HUD tem campo de atributos da unidade
+PASS  HUD tem botao de treinar Escorpião
+PASS  HUD tem indicador de Escorpião ocioso
+PASS  painel de selecao exibe os atributos do Escorpião
+PASS  botao do HUD enfileira a producao do Escorpião
+PASS  treinar Escorpião cobra o custo correto
+PASS  Escorpião tem custo de producao
+PASS  IA usa o custo correto do Escorpião
+PASS  autoload SettingsManager presente
+PASS  opcao de velocidade do jogo aplica time_scale
+PASS  opcao de velocidade de rolagem e aplicada
+PASS  HUD tem botao de opcoes
+PASS  menu de opcoes e instanciado no HUD
+PASS  menu de opcoes tem abas
+PASS  menu tem abas Jogo/Audio/Video
+PASS  menu tem os 5 sliders de configuracao
+PASS  menu tem as 3 opcoes de alternancia
+PASS  versionamento segue o formato 0.xx.xxx
+PASS  menu exibe a versao do jogo
+PASS  Esc abre opcoes e pausa a partida
+PASS  slider de velocidade altera a configuracao em tempo real
+PASS  Esc fecha opcoes e retoma a partida
 PASS  x=55% da largura da a volta (world 8000x4000)
 PASS  y=60%% da altura da a volta no eixo Y
 PASS  canto oposto wrap nos dois eixos
@@ -114,15 +155,24 @@ PASS  cena carrega: res://scenes/buildings/artropes/hollow_nest.tscn
 PASS  instancia criada: res://scenes/buildings/artropes/hollow_nest.tscn
 PASS  cena carrega: res://scenes/units/artropes/skito.tscn
 PASS  instancia criada: res://scenes/units/artropes/skito.tscn
+PASS  cena carrega: res://scenes/units/artropes/scorpion.tscn
+PASS  instancia criada: res://scenes/units/artropes/scorpion.tscn
+PASS  cena carrega: res://scenes/projectiles/poison_projectile.tscn
+PASS  instancia criada: res://scenes/projectiles/poison_projectile.tscn
 PASS  skito.tscn com a arte no tamanho original (40.75 px de mundo)
 PASS  mantis.tscn com a arte no tamanho original (35.84 px de mundo)
 PASS  spider.tscn com a arte no tamanho original (35.84 px de mundo)
+PASS  scorpion.tscn com a arte no tamanho original (35.84 px de mundo)
 PASS  hollow_nest.tscn com a arte no tamanho original (75.24 px de mundo)
 PASS  elementio_fountain.tscn com a arte no tamanho original (59.76 px de mundo)
 PASS  skito.tscn: barra de status CarryBar presente
 PASS  CarryBar no tamanho original (40x4 px)
 PASS  CarryBar acima do sprite (y=-18)
 PASS  CarryBar com 5 separadores de 1 px
+PASS  spider.tscn: barra de status HealthBar presente
+PASS  HealthBar no tamanho original (38x4 px)
+PASS  HealthBar acima do sprite (y=-26)
+PASS  HealthBar com 0 separadores de 1 px
 PASS  hollow_nest.tscn: barra de status HealthBar presente
 PASS  HealthBar no tamanho original (44x4 px)
 PASS  HealthBar acima do sprite (y=-46)

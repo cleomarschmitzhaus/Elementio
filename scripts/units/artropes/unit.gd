@@ -3,6 +3,7 @@ extends CharacterBody2D
 const _PlanetTerrain = preload("res://scripts/planet_terrain.gd")
 
 @export var unit_type: String = "Skito"
+@export var display_name: String = ""
 @export var speed: float = 140.0
 @export var max_health: int = 100
 var current_health: int = 100
@@ -10,16 +11,36 @@ var current_health: int = 100
 @export var team: int = Faction.PLAYER
 # Unidades do jogador sao controlaveis
 var is_controllable: bool = true
-# Unidades operarias (Skito) coletam recursos; as demais (Spider, Mantis) atacam.
+# Unidades operarias (Skito) coletam recursos; as demais (Spider, Mantis,
+# Scorpion) atacam.
 @export var is_worker: bool = false
 # Combate
 @export var attack_damage: int = 10
 @export var attack_range: float = 24.0
 @export var attack_cooldown: float = 0.8
+# Defesa em fracao (0.15 = 15%). Reduz o dano recebido.
+@export_range(0.0, 0.9, 0.01) var defense: float = 0.0
 var attack_timer: float = 0.0
 var target_enemy: Node2D = null
 const AUTO_ATTACK_RADIUS: float = 170.0
 var acquire_timer: float = 0.0
+
+# Ataque a distancia: o Scorpion dispara um projetil de veneno.
+@export var is_ranged: bool = false
+@export var projectile_scene: PackedScene = null
+@export var projectile_speed: float = 520.0
+@export var poison_dps: float = 0.0
+@export var poison_duration: float = 0.0
+
+# Frames do spritesheet. O padrao atende Skito/Mantis (linha de cima =
+# movimento, linha de baixo = coleta/ataque). Spider e Scorpion sobrescrevem
+# estes valores porque usam recortes diferentes da mesma folha.
+@export var move_frame_a: int = 0
+@export var move_frame_b: int = 1
+@export var harvest_frame_a: int = 2
+@export var harvest_frame_b: int = 3
+@export var attack_frame_a: int = 2
+@export var attack_frame_b: int = 3
 
 var target_position: Vector2
 var path: Array[Vector2] = []
@@ -55,6 +76,15 @@ var carry_bar_container: Node2D = null
 var carry_bar_fill: ColorRect = null
 var is_unloading: bool = false
 var unload_timer: float = 0.0
+# Barra de vida acima da unidade
+var health_bar_container: Node2D = null
+var health_bar_fill: ColorRect = null
+var _base_modulate: Color = Color.WHITE
+# Veneno aplicado por projeteis (Scorpion). `poison_dps` acima e' o ataque
+# do proprio Scorpion; `active_poison_dps` e' o dano continuo recebido.
+var poison_time_left: float = 0.0
+var poison_tick_timer: float = 0.0
+var active_poison_dps: float = 0.0
 # Reference to the planet terrain node for walkability checks
 var planet
 # Units that can fly over water (e.g., Skito). Set true in the inspector for flying units.
@@ -76,11 +106,15 @@ func _ready() -> void:
 		# Unidades inimigas recebem um tom avermelhado para identificacao
 		if team == Faction.ENEMY:
 			sprite.modulate = Color(1.0, 0.55, 0.55, 1.0)
+		_base_modulate = sprite.modulate
 	_setup_carry_bar()
+	_setup_health_bar()
 
 func _process(_delta: float) -> void:
 	_update_sphere_shading()
 	_update_carry_bar()
+	_update_health_bar()
+	_update_poison_tint()
 
 func _update_sphere_shading() -> void:
 	if _sphere_mat == null:
@@ -94,6 +128,11 @@ func _update_sphere_shading() -> void:
 	_sphere_mat.set_shader_parameter("entity_world_pos", global_position)
 
 func _physics_process(delta: float) -> void:
+	if current_health <= 0 or is_queued_for_deletion():
+		return
+	_process_poison(delta)
+	if current_health <= 0 or is_queued_for_deletion():
+		return
 	anim_timer += delta
 
 	# Unidades de combate adquirem automaticamente hostis proximos. Isso vale
@@ -104,7 +143,9 @@ func _physics_process(delta: float) -> void:
 		acquire_timer -= delta
 		if acquire_timer <= 0.0:
 			acquire_timer = 0.5
-			var hostile := _find_nearest_hostile(AUTO_ATTACK_RADIUS)
+			# Unidades a distancia enxergam pelo menos o proprio alcance.
+			var acquire_radius := maxf(AUTO_ATTACK_RADIUS, attack_range + 40.0)
+			var hostile := _find_nearest_hostile(acquire_radius)
 			if hostile != null:
 				attack(hostile)
 
@@ -132,26 +173,22 @@ func _physics_process(delta: float) -> void:
 const ANIM_SPEED: float = 2.0  # 2x mais rapido
 
 func _update_animation_frame() -> void:
-	if not sprite: return
-	
+	if not sprite:
+		return
+
+	var flip := int(anim_timer * ANIM_SPEED) % 2 != 0
 	if current_state == UnitState.ATTACKING:
-		# Frames 2 e 3: Golpe de Ataque
-		sprite.frame = 2 if int(anim_timer * ANIM_SPEED) % 2 == 0 else 3
+		sprite.frame = attack_frame_b if flip else attack_frame_a
 	elif current_state == UnitState.HARVESTING:
 		# Animacao de coleta SO quando sobre a fonte (hover); senao, voo
 		var hovering = is_instance_valid(target_resource) and global_position.distance_to(target_resource.global_position) <= 8.0
 		if hovering:
-			sprite.frame = 2 if int(anim_timer * ANIM_SPEED) % 2 == 0 else 3
-		elif is_moving or velocity.length() > 5.0:
-			sprite.frame = 0 if int(anim_timer * ANIM_SPEED) % 2 == 0 else 1
+			sprite.frame = harvest_frame_b if flip else harvest_frame_a
 		else:
-			sprite.frame = 0 if int(anim_timer * ANIM_SPEED) % 2 == 0 else 1
-	elif is_moving or velocity.length() > 5.0:
-		# Frames 0 e 1: Movimento / Voo / Caminhada (mais rápido em marcha)
-		sprite.frame = 0 if int(anim_timer * ANIM_SPEED) % 2 == 0 else 1
+			sprite.frame = move_frame_b if flip else move_frame_a
 	else:
-		# Parado (Idle): batimento lento de asas ou postura estática
-		sprite.frame = 0 if int(anim_timer * ANIM_SPEED) % 2 == 0 else 1
+		# Movimento, voo, caminhada ou idle.
+		sprite.frame = move_frame_b if flip else move_frame_a
 
 func _process_movement(_delta: float) -> void:
 	if is_moving:
@@ -324,14 +361,50 @@ func _process_attacking(delta: float) -> void:
 		attack_timer += delta
 		if attack_timer >= attack_cooldown:
 			attack_timer = 0.0
-			if target_enemy.has_method("take_damage"):
+			if is_ranged:
+				_fire_projectile()
+			elif target_enemy.has_method("take_damage"):
 				target_enemy.take_damage(attack_damage)
 				if not is_instance_valid(target_enemy) or (target_enemy.has_method("get_health_ratio") and target_enemy.get_health_ratio() <= 0.0):
 					current_state = UnitState.IDLE
 					target_enemy = null
 
+## Dispara um projetil de veneno na direcao do alvo. O projetil persegue o
+## alvo pelo caminho mais curto do mundo toroidal e aplica dano + veneno.
+func _fire_projectile() -> void:
+	if not is_instance_valid(target_enemy):
+		return
+	if projectile_scene == null:
+		# Fallback seguro: sem cena de projetil, aplica o dano direto.
+		if target_enemy.has_method("take_damage"):
+			target_enemy.take_damage(attack_damage)
+		return
+	var parent := get_parent()
+	if parent == null:
+		return
+	var proj := projectile_scene.instantiate() as Node2D
+	if proj == null:
+		return
+	var wsize := _planet_world_size()
+	var delta := _PlanetTerrain.toroidal_delta(global_position, target_enemy.global_position, wsize)
+	var dir := Vector2.RIGHT
+	if delta.length_squared() > 0.0001:
+		dir = delta.normalized()
+	parent.add_child(proj)
+	proj.global_position = global_position + dir * 18.0
+	proj.rotation = dir.angle()
+	proj.set("target", target_enemy)
+	proj.set("damage", attack_damage)
+	proj.set("poison_dps", poison_dps)
+	proj.set("poison_duration", poison_duration)
+	proj.set("speed", projectile_speed)
+
 func attack(enemy: Node2D) -> void:
-	if not is_instance_valid(enemy):
+	if not is_instance_valid(enemy) or enemy.is_queued_for_deletion():
+		return
+	if enemy.get("is_ghost") == true:
+		return
+	if enemy.has_method("get_health_ratio") and enemy.get_health_ratio() <= 0.0:
 		return
 	# So pode atacar entidades hostis (classificacao diferente e nao neutra)
 	if "team" in enemy and not Faction.is_hostile(team, enemy.team):
@@ -515,6 +588,124 @@ func _update_carry_bar() -> void:
 	var ratio = clamp(float(carried_elementio) / float(max_carry_capacity), 0.0, 1.0)
 	carry_bar_fill.size.x = 40.0 * ratio
 
+func _setup_health_bar() -> void:
+	if health_bar_container != null:
+		return
+	var container = Node2D.new()
+	container.name = "HealthBar"
+	container.position = Vector2(0, -26)
+	add_child(container)
+	health_bar_container = container
+
+	var bg = ColorRect.new()
+	bg.size = Vector2(38, 4)
+	bg.position = Vector2(-19, 0)
+	bg.color = Color(0.12, 0.12, 0.12, 0.85)
+	container.add_child(bg)
+
+	health_bar_fill = ColorRect.new()
+	health_bar_fill.size = Vector2(38, 4)
+	health_bar_fill.position = Vector2(-19, 0)
+	health_bar_fill.color = Color(0.2, 0.9, 0.3, 1.0)
+	container.add_child(health_bar_fill)
+	container.visible = false
+
+func _update_health_bar() -> void:
+	if health_bar_container == null or health_bar_fill == null:
+		return
+	var ratio := 0.0
+	if max_health > 0:
+		ratio = clampf(float(current_health) / float(max_health), 0.0, 1.0)
+	health_bar_fill.size.x = 38.0 * ratio
+	# A barra aparece quando a unidade esta selecionada, ja sofreu dano ou se
+	# a opcao "sempre mostrar barras de vida" esta ativa.
+	health_bar_container.visible = is_selected or current_health < max_health \
+		or SettingsManager.show_health_bars
+	if team == Faction.ENEMY:
+		health_bar_fill.color = Color(0.95, 0.3, 0.25, 1.0).lerp(
+			Color(0.55, 0.05, 0.05, 1.0), 1.0 - ratio)
+	elif ratio > 0.5:
+		health_bar_fill.color = Color(0.2, 0.9, 0.3, 1.0).lerp(
+			Color(0.95, 0.9, 0.2, 1.0), (1.0 - ratio) * 2.0)
+	else:
+		health_bar_fill.color = Color(0.95, 0.9, 0.2, 1.0).lerp(
+			Color(0.95, 0.2, 0.2, 1.0), (0.5 - ratio) * 2.0)
+
+## Aplica dano com mitigacao pela defesa (%). O minimo e' 1 para que uma
+## unidade nunca fique invulneravel por ter 90% de defesa.
+func take_damage(amount: int) -> void:
+	if current_health <= 0 or is_queued_for_deletion():
+		return
+	var defense_value := clampf(defense, 0.0, 0.9)
+	var mitigated := int(round(float(maxi(amount, 1)) * (1.0 - defense_value)))
+	if mitigated < 1:
+		mitigated = 1
+	current_health -= mitigated
+	_update_health_bar()
+	if current_health <= 0:
+		current_health = 0
+		_on_death()
+
+func _on_death() -> void:
+	_release_fountain_slot()
+	target_resource = null
+	target_enemy = null
+	is_selected = false
+	if health_bar_container != null:
+		health_bar_container.visible = false
+	queue_free()
+
+func apply_poison(dps: float, duration: float) -> void:
+	if current_health <= 0 or is_queued_for_deletion() or dps <= 0.0 or duration <= 0.0:
+		return
+	if poison_time_left <= 0.0:
+		poison_tick_timer = 1.0
+	active_poison_dps = maxf(active_poison_dps, dps)
+	poison_time_left = maxf(poison_time_left, duration)
+
+func _process_poison(delta: float) -> void:
+	if poison_time_left <= 0.0:
+		return
+	poison_tick_timer -= delta
+	if poison_tick_timer <= 0.0:
+		poison_tick_timer += 1.0
+		var tick_damage := int(round(active_poison_dps))
+		if tick_damage > 0:
+			take_damage(tick_damage)
+	poison_time_left -= delta
+	if poison_time_left <= 0.0:
+		poison_time_left = 0.0
+		active_poison_dps = 0.0
+
+func _update_poison_tint() -> void:
+	if sprite == null:
+		return
+	if poison_time_left > 0.0:
+		sprite.modulate = _base_modulate.lerp(Color(0.5, 1.0, 0.3, 1.0), 0.55)
+	else:
+		sprite.modulate = _base_modulate
+
+func get_display_name() -> String:
+	if display_name.is_empty():
+		return unit_type
+	return display_name
+
+func get_health_ratio() -> float:
+	if max_health <= 0:
+		return 0.0
+	return clampf(float(current_health) / float(max_health), 0.0, 1.0)
+
+func get_defense_percent() -> int:
+	return int(round(clampf(defense, 0.0, 0.9) * 100.0))
+
+func get_unit_info() -> String:
+	var extra := ""
+	if is_ranged:
+		extra = " (veneno %d/s)" % int(round(poison_dps))
+	return "%s  |  Vida: %d/%d\nDefesa: %d%%  |  Ataque: %d%s" % [
+		get_display_name(), current_health, max_health,
+		get_defense_percent(), attack_damage, extra]
+
 func _draw() -> void:
 	# Indicador de selecao: elipse na cor da classificacao (topdown, centro 10%)
 	if is_selected:
@@ -527,12 +718,14 @@ func select() -> void:
 	is_selected = true
 	if selection_ring:
 		selection_ring.visible = false
+	_update_health_bar()
 	queue_redraw()
 
 func deselect() -> void:
 	is_selected = false
 	if selection_ring:
 		selection_ring.visible = false
+	_update_health_bar()
 	queue_redraw()
 
 func set_target(pos: Vector2, interrupt_collection: bool = false) -> void:

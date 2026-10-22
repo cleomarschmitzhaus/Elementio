@@ -139,11 +139,7 @@ func _get_hostile_under_mouse(pos: Vector2, attacker_team: int) -> Node2D:
 	return null
 
 func _toggle_fullscreen() -> void:
-	var mode = DisplayServer.window_get_mode()
-	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-	else:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	SettingsManager.toggle_fullscreen()
 
 func _draw() -> void:
 	if is_dragging:

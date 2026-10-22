@@ -119,13 +119,31 @@ func _produce(nest: Node2D) -> void:
 
 	if army >= ARMY_TARGET:
 		return
+	# Mistura o exercito: Spider (corpo a corpo), Mantis (pesado) e Scorpion
+	# (a distancia, com veneno). Se o recurso nao der para o tipo sorteado,
+	# cai para Spider.
 	var unit_name := "spider"
-	if army % 2 == 1 and GameManager.can_afford(GameManager.mantis_cost, Faction.ENEMY):
-		unit_name = "mantis"
-	var cost: int = GameManager.mantis_cost if unit_name == "mantis" else GameManager.spider_cost
+	match army % 3:
+		1:
+			unit_name = "mantis"
+		2:
+			unit_name = "scorpion"
+	var cost := _unit_cost(unit_name)
+	if not GameManager.can_afford(cost, Faction.ENEMY) and unit_name != "spider":
+		unit_name = "spider"
+		cost = _unit_cost(unit_name)
 	if GameManager.can_afford(cost, Faction.ENEMY):
 		GameManager.spend(cost, Faction.ENEMY)
 		nest.call("spawn_unit", unit_name)
+
+func _unit_cost(unit_name: String) -> int:
+	match unit_name:
+		"mantis":
+			return GameManager.mantis_cost
+		"scorpion":
+			return GameManager.scorpion_cost
+		_:
+			return GameManager.spider_cost
 
 func _command_army(nest: Node2D) -> void:
 	attack_timer -= DECISION_INTERVAL

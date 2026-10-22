@@ -34,6 +34,7 @@ const PRODUCTION_TIMES: Dictionary = {
 	"skito": 2.5,
 	"spider": 3.0,
 	"mantis": 3.5,
+	"scorpion": 3.2,
 }
 
 # Barra de producao (HUD)

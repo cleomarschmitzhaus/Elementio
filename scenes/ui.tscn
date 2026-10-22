@@ -74,7 +74,7 @@ theme_override_constants/margin_bottom = 4
 
 [node name="HBox" type="HBoxContainer" parent="Control/TopBar/Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 10
 
 [node name="ElemethLabel" type="Label" parent="Control/TopBar/Panel/Margin/HBox"]
 layout_mode = 2
@@ -103,13 +103,13 @@ horizontal_alignment = 1
 layout_mode = 2
 text = "🛡 Formação: Bloco (F)"
 
-[node name="FullscreenBtn" type="Button" parent="Control/TopBar/Panel/Margin/HBox"]
+[node name="OptionsBtn" type="Button" parent="Control/TopBar/Panel/Margin/HBox"]
 layout_mode = 2
-text = "⛶ Tela Cheia (F11)"
+text = "⚙ Opções (Esc)"
 
 [node name="ViewToggleBtn" type="Button" parent="Control/TopBar/Panel/Margin/HBox"]
 layout_mode = 2
-text = "🌍 Vista Planetária"
+text = "🌍 Planeta"
 
 [node name="BottomBar" type="Control" parent="Control"]
 layout_mode = 1
@@ -213,12 +213,13 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 8
-columns = 4
+columns = 5
 
 [node name="TrainSkitoBtn" type="Button" parent="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid"]
 custom_minimum_size = Vector2(100, 80)
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_font_sizes/font_size = 13
 text = "🪰 Skito
 (Operário - 50)"
 
@@ -226,6 +227,7 @@ text = "🪰 Skito
 custom_minimum_size = Vector2(100, 80)
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_font_sizes/font_size = 13
 text = "🕷 Spider
 (Guerreiro - 100)"
 
@@ -233,13 +235,23 @@ text = "🕷 Spider
 custom_minimum_size = Vector2(100, 80)
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_font_sizes/font_size = 13
 text = "🦗 Mantis
 (Lançador - 150)"
+
+[node name="TrainScorpionBtn" type="Button" parent="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid"]
+custom_minimum_size = Vector2(100, 80)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 13
+text = "🦂 Escorpião
+(À distância - 120)"
 
 [node name="RallyBtn" type="Button" parent="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid"]
 custom_minimum_size = Vector2(100, 80)
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_font_sizes/font_size = 13
 text = "🚩 Rally Point
 (Definir destino)"
 
@@ -273,7 +285,7 @@ text = "⛰ Aplanar
 layout_mode = 2
 
 [node name="SelectionPanel" type="VBoxContainer" parent="Control/BottomBar/Panel/Margin/HBox"]
-custom_minimum_size = Vector2(230, 0)
+custom_minimum_size = Vector2(260, 0)
 layout_mode = 2
 
 [node name="SelectionHeader" type="Label" parent="Control/BottomBar/Panel/Margin/HBox/SelectionPanel"]
@@ -281,6 +293,13 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.8, 0.4, 1)
 theme_override_font_sizes/font_size = 13
 text = "🎯 Unidades Selecionadas: 0"
+
+[node name="SelectionStats" type="Label" parent="Control/BottomBar/Panel/Margin/HBox/SelectionPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.92, 1, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+text = ""
 
 [node name="SelectionScroll" type="ScrollContainer" parent="Control/BottomBar/Panel/Margin/HBox/SelectionPanel"]
 layout_mode = 2
@@ -293,7 +312,7 @@ size_flags_vertical = 3
 theme_override_constants/separation = 8
 
 [connection signal="pressed" from="Control/TopBar/Panel/Margin/HBox/FormationBtn" to="." method="_on_formation_btn_pressed"]
-[connection signal="pressed" from="Control/TopBar/Panel/Margin/HBox/FullscreenBtn" to="." method="_on_fullscreen_btn_pressed"]
+[connection signal="pressed" from="Control/TopBar/Panel/Margin/HBox/OptionsBtn" to="." method="_on_options_btn_pressed"]
 [connection signal="pressed" from="Control/TopBar/Panel/Margin/HBox/ViewToggleBtn" to="." method="_on_view_toggle_pressed"]
 [connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/CategoryTabs/TabBuild" to="." method="_on_tab_build_pressed"]
 [connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/CategoryTabs/TabAction" to="." method="_on_tab_action_pressed"]
@@ -302,6 +321,7 @@ theme_override_constants/separation = 8
 [connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid/TrainSkitoBtn" to="." method="_on_train_skito_pressed"]
 [connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid/TrainSpiderBtn" to="." method="_on_train_spider_pressed"]
 [connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid/TrainMantisBtn" to="." method="_on_train_mantis_pressed"]
+[connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid/TrainScorpionBtn" to="." method="_on_train_scorpion_pressed"]
 [connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid/RallyBtn" to="." method="_on_rally_pressed"]
 [connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/MainContent/SpellsGrid/SpellSwarmBtn" to="." method="_on_spell_swarm_pressed"]
 [connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/MainContent/SpellsGrid/SpellTerraformBtn" to="." method="_on_spell_terraforming_pressed"]

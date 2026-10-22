@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const SETTINGS_MENU_SCENE := preload("res://scenes/settings_menu.tscn")
+
 @onready var build_grid: GridContainer = $Control/BottomBar/Panel/Margin/HBox/MainContent/BuildGrid
 @onready var action_grid: GridContainer = $Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid
 @onready var spells_grid: GridContainer = $Control/BottomBar/Panel/Margin/HBox/MainContent/SpellsGrid
@@ -15,11 +17,13 @@ extends CanvasLayer
 var idle_skito_btn: Button = null
 var idle_spider_btn: Button = null
 var idle_mantis_btn: Button = null
+var idle_scorpion_btn: Button = null
 @onready var formation_btn: Button = $Control/TopBar/Panel/Margin/HBox/FormationBtn
-@onready var fullscreen_btn: Button = $Control/TopBar/Panel/Margin/HBox/FullscreenBtn
+@onready var options_btn: Button = $Control/TopBar/Panel/Margin/HBox/OptionsBtn
 @onready var view_toggle_btn: Button = $Control/TopBar/Panel/Margin/HBox/ViewToggleBtn
 
 @onready var selection_header: Label = $Control/BottomBar/Panel/Margin/HBox/SelectionPanel/SelectionHeader
+@onready var selection_stats: Label = $Control/BottomBar/Panel/Margin/HBox/SelectionPanel/SelectionStats
 @onready var units_hbox: HBoxContainer = $Control/BottomBar/Panel/Margin/HBox/SelectionPanel/SelectionScroll/UnitsHBox
 
 var selected_building = null
@@ -36,30 +40,39 @@ var match_overlay: Control = null
 var match_title: Label = null
 var match_subtitle: Label = null
 
+# Menu de opcoes/pausa (criado depois do overlay de fim de partida para ficar acima dele)
+var settings_menu: Control = null
+
 func _ready() -> void:
+	# A interface continua respondendo enquanto o jogo esta pausado no menu.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	add_to_group("ui")
 	_on_tab_build_pressed()
 	update_formation_label("box")
 	_setup_idle_indicators()
 	_build_match_overlay()
+	_setup_settings_menu()
 
 func _setup_idle_indicators() -> void:
-	var hbox = $Control/TopBar/Panel/Margin/HBox
-	idle_skito_btn = Button.new()
-	idle_skito_btn.text = "Skito: 0"
-	idle_skito_btn.custom_minimum_size = Vector2(80, 30)
-	idle_skito_btn.pressed.connect(func(): _select_idle_units("Skito"))
+	var hbox: HBoxContainer = $Control/TopBar/Panel/Margin/HBox
+	idle_skito_btn = _create_idle_button("Skito: 0", "Skito")
 	hbox.add_child(idle_skito_btn)
-	idle_spider_btn = Button.new()
-	idle_spider_btn.text = "Spider: 0"
-	idle_spider_btn.custom_minimum_size = Vector2(80, 30)
-	idle_spider_btn.pressed.connect(func(): _select_idle_units("Spider"))
+	idle_spider_btn = _create_idle_button("Spider: 0", "Spider")
 	hbox.add_child(idle_spider_btn)
-	idle_mantis_btn = Button.new()
-	idle_mantis_btn.text = "Mantis: 0"
-	idle_mantis_btn.custom_minimum_size = Vector2(80, 30)
-	idle_mantis_btn.pressed.connect(func(): _select_idle_units("Mantis"))
+	idle_mantis_btn = _create_idle_button("Mantis: 0", "Mantis")
 	hbox.add_child(idle_mantis_btn)
+	idle_scorpion_btn = _create_idle_button("Escorpião: 0", "Scorpion")
+	idle_scorpion_btn.custom_minimum_size = Vector2(76, 30)
+	idle_scorpion_btn.add_theme_font_size_override("font_size", 10)
+	hbox.add_child(idle_scorpion_btn)
+
+func _create_idle_button(label_text: String, unit_type: String) -> Button:
+	var btn := Button.new()
+	btn.text = label_text
+	btn.custom_minimum_size = Vector2(64, 30)
+	btn.add_theme_font_size_override("font_size", 11)
+	btn.pressed.connect(func(): _select_idle_units(unit_type))
+	return btn
 
 func _count_idle(unit_type: String) -> int:
 	var count = 0
@@ -129,7 +142,7 @@ func _process(_delta: float) -> void:
 			enemy_count += 1
 		elif not ("is_controllable" in u) or bool(u.get("is_controllable")):
 			player_units += 1
-	stats_label.text = "Ninhos: %d  |  Unidades: %d  |  Inimigos: %d" % [
+	stats_label.text = "Ninhos: %d | Unid: %d | Inim: %d" % [
 		player_buildings, player_units, enemy_count]
 
 	if idle_skito_btn:
@@ -138,10 +151,14 @@ func _process(_delta: float) -> void:
 		idle_spider_btn.text = "Spider: %d" % _count_idle("Spider")
 	if idle_mantis_btn:
 		idle_mantis_btn.text = "Mantis: %d" % _count_idle("Mantis")
+	if idle_scorpion_btn:
+		idle_scorpion_btn.text = "Escorpião: %d" % _count_idle("Scorpion")
 
 
 	# HUD: info do que esta selecionado, atualizando sempre (inclui elementio carregado)
 	var sm = get_tree().get_first_node_in_group("selection_manager")
+	if sm != null:
+		_prune_selected_units(sm)
 	var has_units = sm != null and sm.selected_units.size() > 0
 	if has_units:
 		var total_carried = 0
@@ -149,10 +166,35 @@ func _process(_delta: float) -> void:
 			if is_instance_valid(u) and "carried_elementio" in u:
 				total_carried += u.carried_elementio
 		selection_header.text = "🎯 Selecionadas: %d  |  ⚡ Carregado: %d" % [sm.selected_units.size(), total_carried]
+		_update_selection_stats(sm.selected_units)
 	elif selected_resource and is_instance_valid(selected_resource) and selected_resource.has_method("get_resource_info"):
 		selection_header.text = selected_resource.get_resource_info()
+		selection_stats.text = ""
 	elif selected_building and is_instance_valid(selected_building) and selected_building.has_method("get_building_info"):
 		selection_header.text = selected_building.get_building_info()
+		selection_stats.text = ""
+	else:
+		selection_header.text = "🎯 Selecionadas: 0"
+		selection_stats.text = ""
+
+func _prune_selected_units(sm: Node) -> void:
+	var selected_units: Array = sm.get("selected_units")
+	var removed := false
+	for i in range(selected_units.size() - 1, -1, -1):
+		var u = selected_units[i]
+		if not is_instance_valid(u) or u.is_queued_for_deletion():
+			selected_units.remove_at(i)
+			removed = true
+	if removed:
+		sm.set("selected_units", selected_units)
+		update_selected_units_display(selected_units)
+
+func _update_selection_stats(units: Array) -> void:
+	for u in units:
+		if is_instance_valid(u) and not u.is_queued_for_deletion() and u.has_method("get_unit_info"):
+			selection_stats.text = u.get_unit_info()
+			return
+	selection_stats.text = ""
 
 func update_formation_label(form_name: String) -> void:
 	var label_pt = "Bloco"
@@ -168,14 +210,27 @@ func _on_formation_btn_pressed() -> void:
 	if sm and sm.has_method("cycle_formation"):
 		sm.cycle_formation()
 
-func _on_fullscreen_btn_pressed() -> void:
-	var mode = DisplayServer.window_get_mode()
-	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-		fullscreen_btn.text = "⛶ Tela Cheia (F11)"
+func _on_options_btn_pressed() -> void:
+	if settings_menu == null:
+		return
+	if settings_menu.visible:
+		settings_menu.call("close")
 	else:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
-		fullscreen_btn.text = "🗗 Janela (F11)"
+		if is_building_mode:
+			_cancel_building()
+		settings_menu.call("open")
+
+func _setup_settings_menu() -> void:
+	if settings_menu != null:
+		return
+	var parent := $Control as Control
+	if parent == null:
+		return
+	settings_menu = SETTINGS_MENU_SCENE.instantiate() as Control
+	if settings_menu == null:
+		return
+	parent.add_child(settings_menu)
+	settings_menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 # Agrupamento das unidades selecionadas no HUD (RTS clássico como StarCraft / Age of Empires)
 func update_selected_units_display(units: Array) -> void:
@@ -185,11 +240,12 @@ func update_selected_units_display(units: Array) -> void:
 
 	var valid_units = []
 	for u in units:
-		if is_instance_valid(u):
+		if is_instance_valid(u) and not u.is_queued_for_deletion():
 			valid_units.append(u)
 
 	selection_header.text = "🎯 Selecionadas: %d" % valid_units.size()
 	if valid_units.size() == 0:
+		selection_stats.text = ""
 		return
 
 	# Agrupa por tipo de unidade para contar (ex: 5 Skitos, 2 Spiders)
@@ -202,13 +258,18 @@ func update_selected_units_display(units: Array) -> void:
 
 	for utype in type_counts.keys():
 		var info = type_counts[utype]
+		var sample = info["sample"]
+		var label_text: String = str(utype)
+		if sample.has_method("get_display_name"):
+			label_text = sample.get_display_name()
 		var card = Button.new()
 		card.custom_minimum_size = Vector2(75, 75)
-		card.text = "%s\nx%d" % [utype, info["count"]]
+		card.text = "%s\nx%d" % [label_text, info["count"]]
 		card.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		# Ao clicar no card de um grupo, seleciona apenas aquele tipo
 		card.pressed.connect(func(): _filter_selection_by_type(utype))
 		units_hbox.add_child(card)
+	_update_selection_stats(valid_units)
 
 func _filter_selection_by_type(target_type: String) -> void:
 	var sm = get_tree().get_first_node_in_group("selection_manager")
@@ -232,11 +293,13 @@ func show_building_menu(building: Node) -> void:
 	selected_building = building
 	if building.has_method("get_building_info"):
 		selection_header.text = building.get_building_info()
+	selection_stats.text = ""
 	_on_tab_action_pressed()
 
 func hide_building_menu() -> void:
 	selected_building = null
 	selection_header.text = "🎯 Selecionadas: 0"
+	selection_stats.text = ""
 	_on_tab_build_pressed()
 
 func show_resource_menu(resource: Node) -> void:
@@ -244,10 +307,12 @@ func show_resource_menu(resource: Node) -> void:
 	# mantem a aba atual, mas exibe info no header
 	if selected_resource and is_instance_valid(selected_resource) and selected_resource.has_method("get_resource_info"):
 		selection_header.text = selected_resource.get_resource_info()
+	selection_stats.text = ""
 
 func hide_resource_menu() -> void:
 	selected_resource = null
 	selection_header.text = "🎯 Selecionadas: 0"
+	selection_stats.text = ""
 func _reset_tab_styles() -> void:
 	tab_build_btn.modulate = Color(0.8, 0.8, 0.8)
 	tab_action_btn.modulate = Color(0.8, 0.8, 0.8)
@@ -312,6 +377,15 @@ func _on_train_mantis_pressed() -> void:
 		else:
 			_flash_cost_warning()
 
+func _on_train_scorpion_pressed() -> void:
+	var target = _get_player_nest()
+	if target and target.has_method("spawn_unit"):
+		if GameManager.can_afford(GameManager.scorpion_cost):
+			GameManager.spend(GameManager.scorpion_cost)
+			target.spawn_unit("scorpion")
+		else:
+			_flash_cost_warning()
+
 func _on_rally_pressed() -> void:
 	var target = _get_player_nest()
 	if target and target.has_method("set_rally_point"):
@@ -360,7 +434,7 @@ func _on_view_toggle_pressed() -> void:
 	if globe and globe.has_method("toggle_view"):
 		globe.toggle_view()
 		is_world_view = globe.is_surface_view()
-		view_toggle_btn.text = "🌍 Vista Planetária" if is_world_view else "🔍 Foco Local"
+		view_toggle_btn.text = "🌍 Planeta" if is_world_view else "🔍 Foco Local"
 		return
 	# Cena 2D (main.tscn): ajusta zoom da camera
 	var cam = get_viewport().get_camera_2d()
@@ -378,9 +452,22 @@ func _on_view_toggle_pressed() -> void:
 				cam.target_zoom = saved_camera_zoom
 			else:
 				cam.zoom = Vector2(saved_camera_zoom, saved_camera_zoom)
-			view_toggle_btn.text = "🌍 Vista Planetária"
+			view_toggle_btn.text = "🌍 Planeta"
 
 func _input(event: InputEvent) -> void:
+	# Esc: fecha o menu, cancela a construcao ou abre as opcoes (pausa a partida).
+	if event is InputEventKey and event.pressed and not event.echo \
+			and event.keycode == KEY_ESCAPE:
+		if settings_menu != null:
+			if settings_menu.visible:
+				settings_menu.call("close")
+			elif is_building_mode:
+				_cancel_building()
+			else:
+				settings_menu.call("open")
+		get_viewport().set_input_as_handled()
+		return
+
 	if is_building_mode and building_ghost:
 		var mouse_pos = building_ghost.get_global_mouse_position()
 		building_ghost.global_position = mouse_pos

@@ -27,18 +27,20 @@ func _handle_movement(delta: float) -> void:
 	if Input.is_action_pressed("ui_up") or Input.is_key_pressed(KEY_W):
 		move_vector.y -= 1
 		
-	# Screen edge mouse movement
-	if mouse_pos.x < edge_margin:
-		move_vector.x -= 1
-	elif mouse_pos.x > viewport_size.x - edge_margin:
-		move_vector.x += 1
-		
-	if mouse_pos.y < edge_margin:
-		move_vector.y -= 1
-	elif mouse_pos.y > viewport_size.y - edge_margin:
-		move_vector.y += 1
+	# Screen edge mouse movement (pode ser desligada nas opcoes)
+	if SettingsManager.edge_scroll:
+		if mouse_pos.x < edge_margin:
+			move_vector.x -= 1
+		elif mouse_pos.x > viewport_size.x - edge_margin:
+			move_vector.x += 1
 
-	var new_pos = position + move_vector.normalized() * move_speed * delta * (1.0 / zoom.x)
+		if mouse_pos.y < edge_margin:
+			move_vector.y -= 1
+		elif mouse_pos.y > viewport_size.y - edge_margin:
+			move_vector.y += 1
+
+	var scroll_speed := SettingsManager.scroll_speed
+	var new_pos = position + move_vector.normalized() * scroll_speed * delta * (1.0 / zoom.x)
 
 	# Mundo toroidal (Populous 3): a camera "da a volta" ao cruzar a borda do
 	# mundo, aparecendo do lado oposto. Todos os objetos sao transladados junto
@@ -71,7 +73,7 @@ func _handle_movement(delta: float) -> void:
 ## ser transladada 1 vez, senao se descola das unidades.
 func _shift_world_entities(wrap: Vector2) -> void:
 	var wrapped_nodes: Dictionary = {}
-	for g in ["units", "buildings", "resources", "elementio_sources"]:
+	for g in ["units", "buildings", "resources", "elementio_sources", "projectiles"]:
 		for n in get_tree().get_nodes_in_group(g):
 			if is_instance_valid(n):
 				wrapped_nodes[n.get_instance_id()] = n

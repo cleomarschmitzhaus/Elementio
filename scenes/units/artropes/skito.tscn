@@ -11,6 +11,11 @@ input_pickable = true
 script = ExtResource("1_unit")
 unit_type = "Skito"
 is_worker = true
+max_health = 70
+defense = 0.05
+attack_damage = 5
+attack_range = 20.0
+attack_cooldown = 1.0
 speed = 140.0
 
 [node name="SelectionRing" type="ColorRect" parent="."]
