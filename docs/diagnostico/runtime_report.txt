@@ -1,0 +1,11 @@
+# Relatorio de execucao — Elementio
+Gerado: 2026-10-22T00:17:39
+Godot: 4.7.2-stable (official) | SO: Windows
+Checagens: 2 | Autofixes aplicados: 1 | Eventos: 3
+
+RESUMO: 0 erro(s), 1 aviso(s)
+
+## Ultimos eventos
+- [00:17:36] INFO/boot: ErrorReport ativo | Godot 4.7.2-stable (official) | Windows | cena raiz: TestRunner
+- [00:17:39] WARN/test: Selecao continha 2 unidade(s) liberada(s)/invalida(s) [autodebug: referencias mortas removidas do array de selecao]
+- [00:17:39] INFO/test: mensagem de teste do autodebug

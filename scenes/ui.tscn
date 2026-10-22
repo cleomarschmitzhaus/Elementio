@@ -1,7 +1,35 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui.gd" id="1_ui"]
 [ext_resource type="Script" path="res://scripts/minimap.gd" id="2_minimap"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_top"]
+bg_color = Color(0.12, 0.09, 0.06, 0.88)
+border_width_bottom = 2
+border_color = Color(0.48, 0.35, 0.18, 1)
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mana_bg"]
+bg_color = Color(0.05, 0.05, 0.07, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mana_fg"]
+bg_color = Color(0.12, 0.65, 0.9, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bottom"]
+bg_color = Color(0.12, 0.09, 0.06, 0.92)
+border_width_top = 3
+border_color = Color(0.55, 0.4, 0.22, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
 
 [node name="UI" type="CanvasLayer"]
 script = ExtResource("1_ui")
@@ -15,89 +43,265 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="SidePanel" type="Panel" parent="Control"]
+[node name="TopBar" type="Control" parent="Control"]
 layout_mode = 1
-anchors_preset = 9
-anchor_bottom = 1.0
-offset_right = 250.0
-grow_vertical = 2
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 44.0
+grow_horizontal = 2
+mouse_filter = 2
 
-[node name="VBox" type="VBoxContainer" parent="Control/SidePanel"]
+[node name="Panel" type="Panel" parent="Control/TopBar"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 15
+theme_override_styles/panel = SubResource("StyleBoxFlat_top")
 
-[node name="MinimapRect" type="ColorRect" parent="Control/SidePanel/VBox"]
-custom_minimum_size = Vector2(230, 200)
+[node name="Margin" type="MarginContainer" parent="Control/TopBar/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="Control/TopBar/Panel/Margin"]
 layout_mode = 2
-color = Color(0.1, 0.1, 0.1, 1)
+theme_override_constants/separation = 20
+
+[node name="ElemethLabel" type="Label" parent="Control/TopBar/Panel/Margin/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "⚡ Elemeth: 500"
+
+[node name="ManaBar" type="ProgressBar" parent="Control/TopBar/Panel/Margin/HBox"]
+custom_minimum_size = Vector2(140, 16)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/background = SubResource("StyleBoxFlat_mana_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_mana_fg")
+value = 100.0
+show_percentage = false
+
+[node name="StatsLabel" type="Label" parent="Control/TopBar/Panel/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.9, 0.85, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "🏛 Ninhos: 0  |  🐜 Tribo: 0"
+horizontal_alignment = 1
+
+[node name="FormationBtn" type="Button" parent="Control/TopBar/Panel/Margin/HBox"]
+layout_mode = 2
+text = "🛡 Formação: Bloco (F)"
+
+[node name="FullscreenBtn" type="Button" parent="Control/TopBar/Panel/Margin/HBox"]
+layout_mode = 2
+text = "⛶ Tela Cheia (F11)"
+
+[node name="ViewToggleBtn" type="Button" parent="Control/TopBar/Panel/Margin/HBox"]
+layout_mode = 2
+text = "🌍 Vista Planetária"
+
+[node name="BottomBar" type="Control" parent="Control"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -140.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 1
+
+[node name="Panel" type="Panel" parent="Control/BottomBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bottom")
+
+[node name="Margin" type="MarginContainer" parent="Control/BottomBar/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="HBox" type="HBoxContainer" parent="Control/BottomBar/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="GlobeContainer" type="VBoxContainer" parent="Control/BottomBar/Panel/Margin/HBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="MinimapRect" type="ColorRect" parent="Control/BottomBar/Panel/Margin/HBox/GlobeContainer"]
+custom_minimum_size = Vector2(120, 116)
+layout_mode = 2
+color = Color(0, 0, 0, 0)
 script = ExtResource("2_minimap")
 
-[node name="ElemethLabel" type="Label" parent="Control/SidePanel/VBox"]
+[node name="CategoryTabs" type="VBoxContainer" parent="Control/BottomBar/Panel/Margin/HBox"]
+custom_minimum_size = Vector2(125, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.8, 1, 1)
-text = "Elemeth: 500"
-horizontal_alignment = 1
+theme_override_constants/separation = 6
+alignment = 1
 
-[node name="StatsLabel" type="Label" parent="Control/SidePanel/VBox"]
+[node name="TabBuild" type="Button" parent="Control/BottomBar/Panel/Margin/HBox/CategoryTabs"]
 layout_mode = 2
-text = "Skitos: 0 | Ninhos: 0"
-horizontal_alignment = 1
+size_flags_vertical = 3
+text = "🛖 Construção"
 
-[node name="Tabs" type="HBoxContainer" parent="Control/SidePanel/VBox"]
+[node name="TabAction" type="Button" parent="Control/BottomBar/Panel/Margin/HBox/CategoryTabs"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "🐜 Seguidores"
+
+[node name="TabSpells" type="Button" parent="Control/BottomBar/Panel/Margin/HBox/CategoryTabs"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "✨ Magias"
+
+[node name="VSeparator" type="VSeparator" parent="Control/BottomBar/Panel/Margin/HBox"]
 layout_mode = 2
 
-[node name="TabBuild" type="Button" parent="Control/SidePanel/VBox/Tabs"]
+[node name="MainContent" type="Control" parent="Control/BottomBar/Panel/Margin/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Construir"
 
-[node name="TabAction" type="Button" parent="Control/SidePanel/VBox/Tabs"]
+[node name="BuildGrid" type="GridContainer" parent="Control/BottomBar/Panel/Margin/HBox/MainContent"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
+columns = 4
+
+[node name="BuildNestBtn" type="Button" parent="Control/BottomBar/Panel/Margin/HBox/MainContent/BuildGrid"]
+custom_minimum_size = Vector2(110, 80)
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Ações"
+size_flags_vertical = 3
+text = "🛖 Ninho
+(200 Elemeth)"
 
-[node name="BuildGrid" type="GridContainer" parent="Control/SidePanel/VBox"]
-layout_mode = 2
-columns = 2
-
-[node name="BuildNestBtn" type="Button" parent="Control/SidePanel/VBox/BuildGrid"]
-custom_minimum_size = Vector2(100, 100)
-layout_mode = 2
-text = "Hollow
-Nest"
-
-[node name="ActionGrid" type="GridContainer" parent="Control/SidePanel/VBox"]
+[node name="ActionGrid" type="GridContainer" parent="Control/BottomBar/Panel/Margin/HBox/MainContent"]
 visible = false
-layout_mode = 2
-columns = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
+columns = 4
 
-[node name="TrainSkitoBtn" type="Button" parent="Control/SidePanel/VBox/ActionGrid"]
-custom_minimum_size = Vector2(100, 100)
+[node name="TrainSkitoBtn" type="Button" parent="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid"]
+custom_minimum_size = Vector2(100, 80)
 layout_mode = 2
-text = "Skito"
+size_flags_vertical = 3
+text = "🪰 Skito
+(Operário - 50)"
 
-[node name="TrainSpiderBtn" type="Button" parent="Control/SidePanel/VBox/ActionGrid"]
-custom_minimum_size = Vector2(100, 100)
+[node name="TrainSpiderBtn" type="Button" parent="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid"]
+custom_minimum_size = Vector2(100, 80)
 layout_mode = 2
-text = "Spider"
+size_flags_vertical = 3
+text = "🕷 Spider
+(Guerreiro - 100)"
 
-[node name="TrainMantisBtn" type="Button" parent="Control/SidePanel/VBox/ActionGrid"]
-custom_minimum_size = Vector2(100, 100)
+[node name="TrainMantisBtn" type="Button" parent="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid"]
+custom_minimum_size = Vector2(100, 80)
 layout_mode = 2
-text = "Mantis"
+size_flags_vertical = 3
+text = "🦗 Mantis
+(Lançador - 150)"
 
-[connection signal="pressed" from="Control/SidePanel/VBox/Tabs/TabBuild" to="." method="_on_tab_build_pressed"]
-[connection signal="pressed" from="Control/SidePanel/VBox/Tabs/TabAction" to="." method="_on_tab_action_pressed"]
-[connection signal="pressed" from="Control/SidePanel/VBox/BuildGrid/BuildNestBtn" to="." method="_on_build_nest_pressed"]
-[connection signal="pressed" from="Control/SidePanel/VBox/ActionGrid/TrainSkitoBtn" to="." method="_on_train_skito_pressed"]
-[connection signal="pressed" from="Control/SidePanel/VBox/ActionGrid/TrainSpiderBtn" to="." method="_on_train_spider_pressed"]
-[connection signal="pressed" from="Control/SidePanel/VBox/ActionGrid/TrainMantisBtn" to="." method="_on_train_mantis_pressed"]
+[node name="RallyBtn" type="Button" parent="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid"]
+custom_minimum_size = Vector2(100, 80)
+layout_mode = 2
+size_flags_vertical = 3
+text = "🚩 Rally Point
+(Definir destino)"
+
+[node name="SpellsGrid" type="GridContainer" parent="Control/BottomBar/Panel/Margin/HBox/MainContent"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
+columns = 4
+
+[node name="SpellSwarmBtn" type="Button" parent="Control/BottomBar/Panel/Margin/HBox/MainContent/SpellsGrid"]
+custom_minimum_size = Vector2(110, 80)
+layout_mode = 2
+size_flags_vertical = 3
+text = "🌪 Enxame
+(Aceleração - 80)"
+
+[node name="SpellTerraformBtn" type="Button" parent="Control/BottomBar/Panel/Margin/HBox/MainContent/SpellsGrid"]
+custom_minimum_size = Vector2(110, 80)
+layout_mode = 2
+size_flags_vertical = 3
+text = "⛰ Aplanar
+(Terraformar)"
+
+[node name="VSeparator2" type="VSeparator" parent="Control/BottomBar/Panel/Margin/HBox"]
+layout_mode = 2
+
+[node name="SelectionPanel" type="VBoxContainer" parent="Control/BottomBar/Panel/Margin/HBox"]
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+
+[node name="SelectionHeader" type="Label" parent="Control/BottomBar/Panel/Margin/HBox/SelectionPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.4, 1)
+theme_override_font_sizes/font_size = 13
+text = "🎯 Unidades Selecionadas: 0"
+
+[node name="SelectionScroll" type="ScrollContainer" parent="Control/BottomBar/Panel/Margin/HBox/SelectionPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="UnitsHBox" type="HBoxContainer" parent="Control/BottomBar/Panel/Margin/HBox/SelectionPanel/SelectionScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[connection signal="pressed" from="Control/TopBar/Panel/Margin/HBox/FormationBtn" to="." method="_on_formation_btn_pressed"]
+[connection signal="pressed" from="Control/TopBar/Panel/Margin/HBox/FullscreenBtn" to="." method="_on_fullscreen_btn_pressed"]
+[connection signal="pressed" from="Control/TopBar/Panel/Margin/HBox/ViewToggleBtn" to="." method="_on_view_toggle_pressed"]
+[connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/CategoryTabs/TabBuild" to="." method="_on_tab_build_pressed"]
+[connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/CategoryTabs/TabAction" to="." method="_on_tab_action_pressed"]
+[connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/CategoryTabs/TabSpells" to="." method="_on_tab_spells_pressed"]
+[connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/MainContent/BuildGrid/BuildNestBtn" to="." method="_on_build_nest_pressed"]
+[connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid/TrainSkitoBtn" to="." method="_on_train_skito_pressed"]
+[connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid/TrainSpiderBtn" to="." method="_on_train_spider_pressed"]
+[connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid/TrainMantisBtn" to="." method="_on_train_mantis_pressed"]
+[connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/MainContent/ActionGrid/RallyBtn" to="." method="_on_rally_pressed"]
+[connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/MainContent/SpellsGrid/SpellSwarmBtn" to="." method="_on_spell_swarm_pressed"]
+[connection signal="pressed" from="Control/BottomBar/Panel/Margin/HBox/MainContent/SpellsGrid/SpellTerraformBtn" to="." method="_on_spell_terraforming_pressed"]

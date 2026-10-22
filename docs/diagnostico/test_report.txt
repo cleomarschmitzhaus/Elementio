@@ -1,0 +1,193 @@
+Relatorio de testes — 2026-10-22T00:17:39
+Resultado: 190 PASS / 0 FAIL
+
+PASS  planeta existe (grupo 'planet')
+PASS  get_elevation_at sempre em [0,1]
+PASS  elevacao periodica no wrap do mundo
+PASS  shader do planeta expoe blend_width > 0 (mistura entre materiais)
+PASS  shader do planeta expoe edge_strength > 0 (serpenteio da borda)
+PASS  is_water e is_walkable_land nunca simultaneamente true
+PASS  ninho em terra firme (2740,169)
+PASS  as 5 fontes estao em terra firme caminhavel (alcancaveis)
+PASS  dobrar o mundo preservou o relevo (elevacao normalizada identica)
+PASS  faixa de transicao com 45 px de mundo = 0.23 de tile (p50 de 149 amostras; alvo 0,05-0,60 tile)
+PASS  fonte no grupo 'resources'
+PASS  fonte com 20000 de recurso
+PASS  harvest(20) devolve 20
+PASS  recurso decrementado corretamente
+PASS  fonte esgotada devolve 0
+PASS  HUD indica Esgotada
+PASS  fonte mostra vida infinita
+PASS  operaria nao inicia coleta em fonte esgotada
+PASS  operaria nao guarda fonte esgotada como alvo
+PASS  capacidade de carga = 200
+PASS  unidade tem harvest_resource
+PASS  estado HARVESTING ao ordenar coleta
+PASS  coletou 20 do ciclo
+PASS  carregado = 20 apos 1 ciclo
+PASS  com 200 carregado vai retornar a base
+PASS  ninho alvo definido
+PASS  descarregou elementio no GameManager
+PASS  apos 1 descarga: 200-40=160 carregado
+PASS  novo comando interrompe o ciclo
+PASS  interrupcao limpa target_resource
+PASS  fonte aloca no maximo 4 operarios
+PASS  5o operario fica de fora (fila cheia)
+PASS  HUD mostra operarios 4/4
+PASS  apenas 1 operario ocupa a fonte por vez
+PASS  operario em descarga continua alocado
+PASS  ao sair da fonte vai para o fim da fila
+PASS  proximo da fila assume a fonte automaticamente
+PASS  novo ativo entra na fonte automaticamente
+PASS  operario promovido retoma o movimento sozinho
+PASS  promocao respeita a ordem de alocacao
+PASS  operario da fila espera fora da fonte
+PASS  outra acao remove o operario da fila
+PASS  fila cai para 3 apos interrupcao
+PASS  bandeira visivel com o predio selecionado
+PASS  bandeira oculta ao desselecionar
+PASS  bandeira volta ao selecionar
+PASS  rally sobre construcao centraliza no predio
+PASS  bandeira e filha do predio (acompanha o wrap)
+PASS  bandeira no centro da construcao alvo
+PASS  bandeira acompanha o deslocamento do predio
+PASS  skito spawnado pelo ninho
+PASS  rally sobre a fonte ordena coleta automaticamente
+PASS  skito spawnado ja em HARVESTING
+PASS  nao-operario no rally nao recebe coleta
+PASS  ninho abaixo da camada base (z=-5)
+PASS  fonte (construcao) abaixo da camada base (z=-5)
+PASS  ninho e fonte na mesma camada de construcao
+PASS  skito acima das construcoes
+PASS  spider acima das construcoes
+PASS  construcoes acima do terreno (z=-10)
+PASS  x=55% da largura da a volta (world 8000x4000)
+PASS  y=60%% da altura da a volta no eixo Y
+PASS  canto oposto wrap nos dois eixos
+PASS  wrap translada entidade de grupos duplicados uma unica vez
+PASS  emenda X em x=0 sem degrau de elevacao (ruido periodico)
+PASS  emenda Y em y=0 sem degrau de elevacao (ruido periodico)
+PASS  elevacao periodica: posicao + world_size == posicao (toro)
+PASS  toroidal_delta X atravessa a emenda pelo caminho curto
+PASS  toroidal_delta Y atravessa a emenda pelo caminho curto
+PASS  selection_manager existe
+PASS  formacao linha move todas as unidades
+PASS  offsets de formacao diferentes
+PASS  formacao desconhecida cai no padrao (box)
+PASS  add_elemeth soma
+PASS  spend subtrai
+PASS  can_afford coerente
+PASS  custo negativo sempre acessivel (sanidade)
+PASS  economia inimiga nao altera a do jogador
+PASS  add_elemeth soma no pool inimigo
+PASS  spend desconta do pool inimigo
+PASS  ninho inimigo spawna unidade
+PASS  unidade spawnada herda faccao inimiga
+PASS  unidade inimiga nao e controlavel
+PASS  operaria inimiga entrega no ninho inimigo
+PASS  descarga inimiga nao credita o jogador
+PASS  descarga inimiga credita o pool inimigo
+PASS  IA coloca operaria ociosa na fonte
+PASS  IA gasta recursos para produzir
+PASS  IA inicia producao
+PASS  jogador vence ao zerar as construcoes inimigas
+PASS  inimigo vence ao zerar as construcoes do jogador
+PASS  partida continua com as duas bases vivas
+PASS  empate quando as duas bases caem
+PASS  conta construcoes do jogador
+PASS  conta construcoes inimigas
+PASS  pre-visualizacao de construcao nao conta para vitoria
+PASS  clique direito reconhece construcao inimiga como alvo
+PASS  fonte neutra nao e alvo de ataque
+PASS  unidade de combate adquire construcao hostil proxima
+PASS  script globe_main carrega
+PASS  centro da tela intersecta a esfera
+PASS  centro da tela -> polo (y~0 no mundo)
+PASS  clique fora da esfera retorna null
+PASS  esfera rotacionada ainda intersecta
+PASS  rotacao da esfera desloca o ponto do mundo
+PASS  cena carrega: res://scenes/world_flat.tscn
+PASS  instancia criada: res://scenes/world_flat.tscn
+PASS  cena carrega: res://scenes/elementio_fountain.tscn
+PASS  instancia criada: res://scenes/elementio_fountain.tscn
+PASS  cena carrega: res://scenes/buildings/artropes/hollow_nest.tscn
+PASS  instancia criada: res://scenes/buildings/artropes/hollow_nest.tscn
+PASS  cena carrega: res://scenes/units/artropes/skito.tscn
+PASS  instancia criada: res://scenes/units/artropes/skito.tscn
+PASS  skito.tscn com a arte no tamanho original (40.75 px de mundo)
+PASS  mantis.tscn com a arte no tamanho original (35.84 px de mundo)
+PASS  spider.tscn com a arte no tamanho original (35.84 px de mundo)
+PASS  hollow_nest.tscn com a arte no tamanho original (75.24 px de mundo)
+PASS  elementio_fountain.tscn com a arte no tamanho original (59.76 px de mundo)
+PASS  skito.tscn: barra de status CarryBar presente
+PASS  CarryBar no tamanho original (40x4 px)
+PASS  CarryBar acima do sprite (y=-18)
+PASS  CarryBar com 5 separadores de 1 px
+PASS  hollow_nest.tscn: barra de status HealthBar presente
+PASS  HealthBar no tamanho original (44x4 px)
+PASS  HealthBar acima do sprite (y=-46)
+PASS  HealthBar com 0 separadores de 1 px
+PASS  elementio_fountain.tscn: barra de status ResBar presente
+PASS  ResBar no tamanho original (44x4 px)
+PASS  ResBar acima do sprite (y=-34)
+PASS  ResBar com 5 separadores de 1 px
+PASS  area do planeta 4x maior (mundo 8000x4000)
+PASS  globe_main.tscn carrega (sem erro de no duplicado)
+PASS  nenhum no filho duplicado na cena principal (duplicado: '')
+PASS  SubViewport presente
+PASS  Sphere presente
+PASS  Camera3D presente
+PASS  UI presente
+PASS  SubViewport em alta resolucao (8192x4096)
+PASS  camera plana cobre exatamente uma volta do mundo (8000x4000)
+PASS  textura do planeta com filtro linear+mipmap (sem serrilhado)
+PASS  sprites 2D usam filtro linear+mipmap (evita aliasing ao reduzir)
+PASS  spritesheet tem mipmaps gerados
+PASS  globo enche >=80% da altura na vista planetaria (90%)
+PASS  globe no grupo globe_controller
+PASS  inicia em vista planeta
+PASS  toggle_view muda para superficie
+PASS  toggle_view volta para planeta
+PASS  clique no centro da cena real acerta o mundo
+PASS  globo faz a unidade dar a volta no mapa (x=4200 -> oposto)
+PASS  norte da vista local e' o +Y do mundo (equador)
+PASS  leste/oeste perpendicular ao norte (camera sem rolagem)
+PASS  ida e volta norte-sul volta ao mesmo ponto (desvio 0.000000)
+PASS  ida e volta leste-oeste volta ao mesmo ponto (desvio 0.000000)
+PASS  leste/oeste mantem a latitude (anda sobre o paralelo)
+PASS  andar em L nao gira a camera (direito da tela no eixo leste-oeste)
+PASS  D anda para a direita da tela (dot=1.000)
+PASS  A anda para a esquerda da tela (dot=-1.000)
+PASS  foco para em +88 graus ao ir para o norte (lat=88.00)
+PASS  foco para em -88 graus ao ir para o sul (lat=-88.00)
+PASS  ponto focado permanece na esfera
+PASS  camera estavel no limite do polo (sem NaN)
+PASS  fundo e' SKY (skybox), nao mais uma cor fixa
+PASS  WorldEnvironment tem um Sky
+PASS  skybox barato: radiance cubemap no minimo (32)
+PASS  skybox barato: radiance incremental (nao REALTIME, que forca 256)
+PASS  skybox usa ShaderMaterial (procedural)
+PASS  skybox expoe o parametro 'view_blend'
+PASS  skybox expoe o parametro 'sun_dir'
+PASS  skybox expoe o parametro 'moon_dir'
+PASS  skybox expoe o parametro 'sky_up'
+PASS  skybox expoe o parametro 'sky_time'
+PASS  shader do ceu tem as duas vistas (local_sky + space_sky)
+PASS  shader do ceu tem nuvens (Foco Local) e estrelas (universo)
+PASS  shader do ceu mistura as vistas pelo uniform view_blend
+PASS  FOV do Foco Local = 28 (ceu ~44% da area)
+PASS  camera no Foco Local usa o FOV do ceu (28)
+PASS  sol orbita (moveu 0.382 rad em 10 s)
+PASS  lua orbita (moveu 0.249 rad em 10 s)
+PASS  periodos diferentes: sol (150s) anda mais que a lua (230s)
+PASS  DirectionalLight3D aponta para o sol (dot=1.000)
+PASS  view_blend = 1 no Foco Local (ceu azul)
+PASS  view_blend = 0 na vista planeta (universo)
+PASS  boot comeca na vista planetaria
+PASS  boot entra no Foco Local apos o atraso
+PASS  atraso do boot configuravel (0.05 s no teste)
+PASS  autoload ErrorReport presente
+PASS  ErrorReport tem run_checks
+PASS  run_checks devolve lista de problemas
+PASS  ErrorReport tem log_event
+PASS  estatisticas do ErrorReport funcionam

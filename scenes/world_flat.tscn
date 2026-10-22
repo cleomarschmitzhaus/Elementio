@@ -1,0 +1,68 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/rts_camera.gd" id="1_abcde"]
+[ext_resource type="PackedScene" path="res://scenes/units/artropes/skito.tscn" id="2_skito"]
+[ext_resource type="Script" path="res://scripts/selection_manager.gd" id="4_sel"]
+[ext_resource type="Script" path="res://scripts/planet_terrain.gd" id="5_planet"]
+[ext_resource type="Shader" path="res://shaders/populous_planet.gdshader" id="6_shader"]
+[ext_resource type="PackedScene" path="res://scenes/buildings/artropes/hollow_nest.tscn" id="7_nest"]
+[ext_resource type="PackedScene" path="res://scenes/elementio_fountain.tscn" id="8_fount"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_planet"]
+shader = ExtResource("6_shader")
+shader_parameter/planet_radius = 0.48
+shader_parameter/planet_radius_world = 960.0
+shader_parameter/camera_offset = Vector2(0, 0)
+shader_parameter/world_size = Vector2(8000, 4000)
+shader_parameter/rect_size = Vector2(10400, 10400)
+shader_parameter/space_color = Color(0.02, 0.03, 0.06, 1)
+shader_parameter/atmosphere_color = Color(0.2, 0.55, 0.85, 0.4)
+
+[node name="Main" type="Node2D" groups=["main"]]
+
+[node name="Planet" type="Node2D" parent="."]
+z_index = -10
+script = ExtResource("5_planet")
+
+[node name="PlanetSurface" type="ColorRect" parent="Planet"]
+material = SubResource("ShaderMaterial_planet")
+custom_minimum_size = Vector2(10400, 10400)
+offset_left = -5200.0
+offset_top = -5200.0
+offset_right = 5200.0
+offset_bottom = 5200.0
+
+[node name="InitialNest" parent="." instance=ExtResource("7_nest")]
+position = Vector2(2740, 169)
+
+[node name="Skito1" parent="." instance=ExtResource("2_skito")]
+position = Vector2(2540, 300)
+
+[node name="Skito2" parent="." instance=ExtResource("2_skito")]
+position = Vector2(2700, 340)
+
+[node name="Skito3" parent="." instance=ExtResource("2_skito")]
+position = Vector2(2860, 300)
+
+[node name="ElementioFountain1" parent="." instance=ExtResource("8_fount")]
+position = Vector2(1832, 168)
+
+[node name="ElementioFountain2" parent="." instance=ExtResource("8_fount")]
+position = Vector2(2332, -828)
+
+[node name="ElementioFountain3" parent="." instance=ExtResource("8_fount")]
+position = Vector2(3713, 61)
+
+[node name="ElementioFountain4" parent="." instance=ExtResource("8_fount")]
+position = Vector2(3255, 745)
+
+[node name="ElementioFountain5" parent="." instance=ExtResource("8_fount")]
+position = Vector2(2225, 707)
+
+[node name="SelectionManager" type="Node2D" parent="."]
+z_index = 100
+script = ExtResource("4_sel")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(2740, 169)
+script = ExtResource("1_abcde")

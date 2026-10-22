@@ -1,26 +1,32 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/units/artropes/unit.gd" id="1_unit"]
-[ext_resource type="Texture2D" uid="uid://dskito_tex" path="res://assets/sprites/skito.jpg" id="2_tex"]
+[ext_resource type="Texture2D" path="res://assets/sprites/skito_sheet.png" id="2_stex"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_sk1"]
-size = Vector2(32, 32)
+[sub_resource type="CircleShape2D" id="CircleShape2D_sk1"]
+radius = 12.0
 
 [node name="Skito" type="CharacterBody2D" groups=["units", "artropes"]]
 input_pickable = true
 script = ExtResource("1_unit")
+unit_type = "Skito"
+is_worker = true
+speed = 140.0
 
 [node name="SelectionRing" type="ColorRect" parent="."]
-offset_left = -18.0
-offset_top = -18.0
-offset_right = 18.0
-offset_bottom = 18.0
+offset_left = -14.0
+offset_top = -14.0
+offset_right = 14.0
+offset_bottom = 14.0
 color = Color(0, 1, 0, 0.4)
-metadata/_edit_use_anchors_ = true
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(0.03, 0.03)
-texture = ExtResource("2_tex")
+scale = Vector2(0.065, 0.065)
+texture = ExtResource("2_stex")
+hframes = 2
+vframes = 2
+frame = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_sk1")
+shape = SubResource("CircleShape2D_sk1")
+

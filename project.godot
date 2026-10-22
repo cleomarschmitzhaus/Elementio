@@ -17,3 +17,16 @@ config/features=PackedStringArray("4.7")
 [autoload]
 
 GameManager="*res://scripts/game_manager.gd"
+ErrorReport="*res://scripts/debug/error_report.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/size/mode=4
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=3

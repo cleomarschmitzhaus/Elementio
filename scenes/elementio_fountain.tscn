@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/elementio_fountain.gd" id="1_fount"]
+[ext_resource type="Texture2D" path="res://assets/sprites/fountain.png" id="2_ftex"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_fnt"]
+radius = 28.0
+
+[node name="ElementioFountain" type="StaticBody2D" groups=["resources", "elementio_sources"]]
+z_index = -5
+input_pickable = true
+script = ExtResource("1_fount")
+
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.18, 0.18)
+texture = ExtResource("2_ftex")
+hframes = 4
+vframes = 2
+frame = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_fnt")
+

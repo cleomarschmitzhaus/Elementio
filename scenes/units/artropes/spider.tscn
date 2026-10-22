@@ -1,27 +1,42 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/units/artropes/unit.gd" id="1_unit"]
-[ext_resource type="Texture2D" uid="uid://dspider_tex" path="res://assets/sprites/spider.jpg" id="2_tex"]
+[ext_resource type="Texture2D" path="res://assets/sprites/spider_sheet.png" id="2_stex"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_sp1"]
-size = Vector2(32, 32)
+[sub_resource type="CircleShape2D" id="CircleShape2D_sp1"]
+radius = 14.0
 
 [node name="Spider" type="CharacterBody2D" groups=["units", "artropes"]]
 input_pickable = true
 script = ExtResource("1_unit")
+unit_type = "Spider"
+is_worker = false
+attack_damage = 12
+attack_range = 28.0
+attack_cooldown = 0.7
 speed = 120.0
 
 [node name="SelectionRing" type="ColorRect" parent="."]
-offset_left = -18.0
-offset_top = -18.0
-offset_right = 18.0
-offset_bottom = 18.0
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
 color = Color(0, 1, 0, 0.4)
-metadata/_edit_use_anchors_ = true
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(0.03, 0.03)
-texture = ExtResource("2_tex")
+scale = Vector2(0.07, 0.07)
+texture = ExtResource("2_stex")
+hframes = 2
+vframes = 2
+frame = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_sp1")
+shape = SubResource("CircleShape2D_sp1")
+
+[node name="ResourceIndicator" type="ColorRect" parent="."]
+visible = false
+offset_left = -4.0
+offset_top = -22.0
+offset_right = 4.0
+offset_bottom = -14.0
+color = Color(0, 0.85, 1, 1)
